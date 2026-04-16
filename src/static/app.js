@@ -569,6 +569,12 @@ document.addEventListener("DOMContentLoaded", () => {
         `
         }
       </div>
+      <div class="share-buttons">
+        <span class="share-label">Share:</span>
+        <button class="share-btn share-copy" title="Copy link" aria-label="Copy link to clipboard">🔗</button>
+        <button class="share-btn share-twitter" title="Share on X (Twitter)" aria-label="Share on X (Twitter)">𝕏</button>
+        <button class="share-btn share-email" title="Share via email" aria-label="Share via email">✉</button>
+      </div>
     `;
 
     // Add click handlers for delete buttons
@@ -587,7 +593,40 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Add click handlers for share buttons
+    activityCard.querySelector(".share-copy").addEventListener("click", () => {
+      shareActivity("copy", name, details);
+    });
+    activityCard.querySelector(".share-twitter").addEventListener("click", () => {
+      shareActivity("twitter", name, details);
+    });
+    activityCard.querySelector(".share-email").addEventListener("click", () => {
+      shareActivity("email", name, details);
+    });
+
     activitiesList.appendChild(activityCard);
+  }
+
+  // Share an activity via different channels
+  function shareActivity(channel, name, details) {
+    const schedule = formatSchedule(details);
+    const text = `Check out "${name}" at Mergington High School! Schedule: ${schedule}`;
+    const url = window.location.href;
+
+    if (channel === "copy") {
+      navigator.clipboard.writeText(`${text} — ${url}`).then(() => {
+        showMessage("Link copied to clipboard!", "success");
+      }).catch(() => {
+        showMessage("Could not copy link. Please copy the page URL manually.", "error");
+      });
+    } else if (channel === "twitter") {
+      const twitterUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+      window.open(twitterUrl, "_blank", "noopener,noreferrer");
+    } else if (channel === "email") {
+      const subject = encodeURIComponent(`Join me: ${name} at Mergington High School`);
+      const body = encodeURIComponent(`${text}\n\nSign up here: ${url}`);
+      window.location.href = `mailto:?subject=${subject}&body=${body}`;
+    }
   }
 
   // Event listeners for search and filter
